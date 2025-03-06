@@ -116,9 +116,6 @@ document.addEventListener('DOMContentLoaded', () => {
             showError(error.message || 'An error occurred while searching');
         }
     });
-        
-        if (!lyrics) {
-            showError('Please enter some lyrics to search for.');
             return;
         }
         
