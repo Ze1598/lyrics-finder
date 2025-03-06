@@ -48,14 +48,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Function to search for songs
-    async function searchSongs(lyrics) {
+    async function searchSongs(lyrics, genre) {
         try {
             const response = await fetch('/search', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ lyrics })
+                body: JSON.stringify({ lyrics, genre })
             });
             
             const data = await response.json();
@@ -77,6 +77,44 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Event listener for search button
+    searchButton.addEventListener('click', async () => {
+        const lyrics = lyricsInput.value.trim();
+        const genre = document.getElementById('genre-select').value;
+        
+        if (!lyrics) {
+            showError('Please enter some lyrics to search for');
+            return;
+        }
+        
+        // Clear previous results and errors
+        clearError();
+        resultsContainer.classList.add('hidden');
+        resultsList.innerHTML = '';
+        
+        // Show loading indicator
+        loadingElement.classList.remove('hidden');
+        
+        try {
+            const songs = await searchSongs(lyrics, genre);
+            
+            // Hide loading indicator
+            loadingElement.classList.add('hidden');
+            
+            if (!songs || songs.length === 0) {
+                showError('No songs found matching your search');
+                return;
+            }
+            
+            // Display results
+            songs.forEach(song => {
+                resultsList.appendChild(createSongCard(song));
+            });
+            
+            resultsContainer.classList.remove('hidden');
+        } catch (error) {
+            showError(error.message || 'An error occurred while searching');
+        }
+    });ton
     searchButton.addEventListener('click', async () => {
         const lyrics = lyricsInput.value.trim();
         

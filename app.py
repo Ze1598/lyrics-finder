@@ -39,18 +39,24 @@ def index():
 
 @app.route('/search', methods=['POST'])
 def search_lyrics():
-    """Search for songs based on lyrics."""
+    """Search for songs based on lyrics and optionally by genre."""
     if not genius:
         return jsonify({'error': 'Genius access token not configured'}), 500
     
     lyrics_query = request.json.get('lyrics', '')
+    genre = request.json.get('genre', '')
+    
     if not lyrics_query:
         return jsonify({'error': 'No lyrics provided'}), 400
     
     try:
         # Search for songs with matching lyrics
         # Use the search_song method instead of direct search for better compatibility
-        search_results = genius.search_songs(lyrics_query)
+        search_query = lyrics_query
+        if genre:
+            search_query = f"{lyrics_query} {genre}"
+            
+        search_results = genius.search_songs(search_query)
         
         # Format the results
         songs = []
