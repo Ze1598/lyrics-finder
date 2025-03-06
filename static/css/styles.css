@@ -51,15 +51,28 @@ header p {
     margin-bottom: 1rem;
 }
 
-.genre-container {
+.input-row {
     display: flex;
-    align-items: center;
+    gap: 1rem;
     margin-bottom: 1rem;
 }
 
-.genre-container label {
-    margin-right: 1rem;
+.input-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group label {
+    margin-bottom: 0.5rem;
     font-weight: 500;
+}
+
+#artist-input {
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
 }
 
 #genre-select {

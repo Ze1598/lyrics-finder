@@ -48,14 +48,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Function to search for songs
-    async function searchSongs(lyrics, genre) {
+    async function searchSongs(lyrics, artist, genre) {
         try {
             const response = await fetch('/search', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ lyrics, genre })
+                body: JSON.stringify({ lyrics, artist, genre })
             });
             
             const data = await response.json();
@@ -79,6 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event listener for search button
     searchButton.addEventListener('click', async () => {
         const lyrics = lyricsInput.value.trim();
+        const artist = document.getElementById('artist-input').value.trim();
         const genre = document.getElementById('genre-select').value;
         
         if (!lyrics) {
@@ -95,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingElement.classList.remove('hidden');
         
         try {
-            const songs = await searchSongs(lyrics, genre);
+            const songs = await searchSongs(lyrics, artist, genre);
             
             // Hide loading indicator
             loadingElement.classList.add('hidden');
@@ -114,9 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             showError(error.message || 'An error occurred while searching');
         }
-    });ton
-    searchButton.addEventListener('click', async () => {
-        const lyrics = lyricsInput.value.trim();
+    });
         
         if (!lyrics) {
             showError('Please enter some lyrics to search for.');

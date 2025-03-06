@@ -44,6 +44,7 @@ def search_lyrics():
         return jsonify({'error': 'Genius access token not configured'}), 500
     
     lyrics_query = request.json.get('lyrics', '')
+    artist = request.json.get('artist', '')
     genre = request.json.get('genre', '')
     
     if not lyrics_query:
@@ -53,8 +54,14 @@ def search_lyrics():
         # Search for songs with matching lyrics
         # Use the search_song method instead of direct search for better compatibility
         search_query = lyrics_query
+        
+        # Add artist to query if provided
+        if artist:
+            search_query = f"{artist} {search_query}"
+            
+        # Add genre to query if provided
         if genre:
-            search_query = f"{lyrics_query} {genre}"
+            search_query = f"{search_query} {genre}"
             
         search_results = genius.search_songs(search_query)
         
