@@ -16,10 +16,19 @@ GENIUS_ACCESS_TOKEN = os.getenv('GENIUS_ACCESS_TOKEN')
 if GENIUS_ACCESS_TOKEN:
     genius = lyricsgenius.Genius(
         access_token=GENIUS_ACCESS_TOKEN,
-        timeout=10,
+        timeout=15,
         retries=3,
+        remove_section_headers=True,
+        skip_non_songs=True,
+        excluded_terms=["(Remix)", "(Live)"],
         verbose=False  # Set to True for debugging
     )
+    # Add user agent to avoid 403 errors
+    genius.verbose = False
+    genius._session.headers.update({
+        'User-Agent': 'LyricsFinder/1.0',
+        'Accept': 'application/json'
+    })
 else:
     genius = None
 
@@ -40,14 +49,23 @@ def search_lyrics():
     
     try:
         # Search for songs with matching lyrics
-        search_results = genius.search(lyrics_query)
+        # Use the search_song method instead of direct search for better compatibility
+        search_results = genius.search_songs(lyrics_query)
         
         # Format the results
         songs = []
         
-        # The response format can vary depending on the API version and authentication method
-        # Handle both possible response formats
-        if isinstance(search_results, dict) and search_results.get('hits'):
+        # Process the results
+        if isinstance(search_results, list):
+            # New format from search_songs method
+            for song in search_results:
+                songs.append({
+                    'title': song.get('title', 'Unknown Title'),
+                    'artist': song.get('artist', {}).get('name', 'Unknown Artist') if isinstance(song.get('artist'), dict) else song.get('artist', 'Unknown Artist'),
+                    'url': song.get('url', '#'),
+                    'thumbnail': song.get('song_art_image_thumbnail_url', '')
+                })
+        elif isinstance(search_results, dict) and search_results.get('hits'):
             # Format for direct API access with client access token
             for hit in search_results['hits']:
                 result = hit.get('result')
@@ -75,7 +93,8 @@ def search_lyrics():
         return jsonify({'songs': songs})
     
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        app.logger.error(f"Error searching lyrics: {str(e)}")
+        return jsonify({'error': f"Error searching lyrics: {str(e)}"}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
